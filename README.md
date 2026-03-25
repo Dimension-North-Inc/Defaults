@@ -47,11 +47,11 @@ Define your keys **once** with types, defaults, and optional validation:
 // Keys.swift - Define all keys in one place
 extension DefaultKeys {
     var useNSFW: DefaultKey<Bool> {
-        DefaultKey(key: "useNSFW", default: true)
+        DefaultKey("useNSFW", value: true)
     }
 
     var gridColumns: DefaultKey<Int> {
-        DefaultKey(key: "gridColumns", default: 4, validate: { max(1, min($0, 12)) })
+        DefaultKey("gridColumns", value: 4, validate: { max(1, min($0, 12)) })
     }
 }
 ```
@@ -140,20 +140,22 @@ class GalleryViewModel: ObservableObject {
 
 Add to your `DefaultKeys` extension:
 
+> **Note:** `DefaultKey` initializer uses positional `key` and labeled `value` parameters: `DefaultKey("keyName", value: defaultValue)`
+
 ```swift
 extension DefaultKeys {
     var mySetting: DefaultKey<Bool> {
-        DefaultKey(key: "mySetting", default: false)
+        DefaultKey("mySetting", value: false)
     }
 
     var username: DefaultKey<String> {
-        DefaultKey(key: "username", default: "")
+        DefaultKey("username", value: "")
     }
 
     var threshold: DefaultKey<Double> {
         DefaultKey(
-            key: "threshold",
-            default: 0.5,
+            "threshold",
+            value: 0.5,
             validate: { max(0.0, min(1.0, $0)) }  // clamp to 0-1
         )
     }

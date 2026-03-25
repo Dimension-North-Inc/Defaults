@@ -70,34 +70,34 @@ extension DefaultStore {
 ///
 /// Basic key with no validation:
 /// ```swift
-/// DefaultKey(key: "username", default: "")
+/// DefaultKey("username", value: "")
 /// ```
 ///
 /// Clamping a double value between 0 and 1:
 /// ```swift
 /// DefaultKey(
-///     key: "nsfwThreshold",
-///     default: 0.5,
-///     validator: { max(0.0, min(1.0, \$0)) }
+///     "nsfwThreshold",
+///     value: 0.5,
+///     validate: { max(0.0, min(1.0, \$0)) }
 /// )
 /// ```
 ///
 /// Normalizing string input:
 /// ```swift
 /// DefaultKey(
-///     key: "email",
-///     default: "",
-///     validator: { \$0.lowercased().trimmingCharacters(in: .whitespaces) }
+///     "email",
+///     value: "",
+///     validate: { \$0.lowercased().trimmingCharacters(in: .whitespaces) }
 /// )
 /// ```
 public struct DefaultKey<Value: Codable & Equatable> {
     public let key: String
-    public let `default`: Value
+    public let value: Value
     public let validate: (Value) -> Value
-    
-    public init(key: String, default: Value, validate: @escaping (Value) -> Value = { value in value }) {
+
+    public init(_ key: String, value: Value, validate: @escaping (Value) -> Value = { $0 }) {
         self.key = key
-        self.default = `default`
+        self.value = value
         self.validate = validate
     }
 }
@@ -110,17 +110,17 @@ public struct DefaultKeys: Sendable {}
 public extension DefaultKeys {
     /// Indicates whether NSFW content is enabled.
     var useNSFW: DefaultKey<Bool> {
-        DefaultKey(key: "useNSFW", default: true)
+        DefaultKey("useNSFW", value: true)
     }
 
     /// Indicates whether all NSFW results are filtered.
     var filtersAllNSFWResults: DefaultKey<Bool> {
-        DefaultKey(key: "filtersAllNSFWResults", default: false)
+        DefaultKey("filtersAllNSFWResults", value: false)
     }
 
     /// Number of columns in the gallery grid.
     var gridColumns: DefaultKey<Int> {
-        DefaultKey(key: "gridColumns", default: 4)
+        DefaultKey("gridColumns", value: 4)
     }
 }
 
@@ -154,7 +154,7 @@ public final class ObservableDefaultValue<T: Codable & Equatable>: NSObject, Obs
            let decodedValue = try? JSONDecoder().decode(T.self, from: data) {
             self.value = decodedValue
         } else {
-            self.value = key.default
+            self.value = key.value
         }
 
         super.init()
