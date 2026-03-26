@@ -200,6 +200,8 @@ extension Style.Keys {
 
 This convention ensures that when a `DefaultKey<ColorSchemeStyle>` is used, `ColorSchemeStyle.Value` is unambiguous and doesn't shadow `SwiftUI.ColorScheme`. Apply the same pattern for any custom non-built-in type — the `Value` wrapper avoids name collisions regardless of whether the underlying type is an enum, a struct, or any other custom type.
 
+The convention also makes call-sites natural: `IndentationStyle.Value` reads clearly and is concise. It also makes call sites searchable — searching for `.Value` across a codebase surfaces usages of custom style values without noise from generic `Any`/`AnyObject` casts.
+
 ### 2. Use in a SwiftUI View
 
 ```swift
