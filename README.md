@@ -162,6 +162,44 @@ extension DefaultKeys {
 }
 ```
 
+### 2. Best Practice: Use `Value` for Nested Enum Types
+
+When a style key's value type is a custom enum, name the enum `Value` nested inside the style struct. This avoids conflicts with SwiftUI types that share common names like `ColorScheme`, `Alignment`, `Edge`, etc.
+
+**Example — a `ColorScheme` style without the naming convention:**
+```swift
+// Conflict: ColorScheme exists in SwiftUI
+public enum ColorScheme: Codable, Hashable {
+    case system, light, dark
+}
+public struct ColorSchemeStyle {
+    public var scheme: ColorScheme  // compiles but shadows SwiftUI.ColorScheme
+}
+```
+
+**Correct approach — use `Value` for the nested enum:**
+```swift
+public struct ColorSchemeStyle: StyleKeys, Codable, Hashable {
+    public enum Value: Codable, Hashable {
+        case system, light, dark
+    }
+    public var value: Value
+    public init(_ value: Value = .system) {
+        self.value = value
+    }
+    public static var name: String { "outline.colorScheme" }
+    public static var initial: Value { .system }
+}
+
+extension Style.Keys {
+    var colorScheme: DefaultKey<ColorSchemeStyle> {
+        DefaultKey(ColorSchemeStyle.name, value: ColorSchemeStyle.initial)
+    }
+}
+```
+
+This convention ensures that when a `DefaultKey<ColorSchemeStyle>` is used, `ColorSchemeStyle.Value` is unambiguous and doesn't shadow `SwiftUI.ColorScheme`. Apply the same pattern whenever your style enum's base name could conflict with a framework type.
+
 ### 2. Use in a SwiftUI View
 
 ```swift
