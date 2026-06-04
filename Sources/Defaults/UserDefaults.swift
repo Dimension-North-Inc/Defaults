@@ -202,10 +202,18 @@ public final class ObservableDefaultValue<T: Codable & Equatable>: NSObject, Obs
         callbacks.forEach { $0(newValue) }
     }
 
-    @objc dynamic private func handleExternalChange(_ notification: Notification) {
-        synchronizeWithStorage()
+    // `nonisolated` so the @objc notification thunk can be entered from any
+    // thread — UserDefaults/ubiquitous-store change notifications are delivered
+    // on whatever thread posts them. The body then hops to the main actor, since
+    // synchronizeWithStorage touches @MainActor state and calling it off-main is a
+    // fatal executor trap on current runtimes.
+    @objc dynamic private nonisolated func handleExternalChange(_ notification: Notification) {
+        Task { @MainActor [weak self] in
+            self?.synchronizeWithStorage()
+        }
     }
 
+    @MainActor
     private func synchronizeWithStorage() {
         if let data = storage.object(forKey: key.key) as? Data,
            let newValue = try? JSONDecoder().decode(T.self, from: data),
